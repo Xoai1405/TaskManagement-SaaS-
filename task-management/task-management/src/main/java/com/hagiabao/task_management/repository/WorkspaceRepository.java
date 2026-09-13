@@ -7,4 +7,5 @@ import com.hagiabao.task_management.entity.Workspace;
 
 @Repository 
 public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
+    
 }

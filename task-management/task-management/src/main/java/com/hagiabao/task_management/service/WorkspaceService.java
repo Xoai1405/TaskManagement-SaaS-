@@ -1,5 +1,8 @@
 package com.hagiabao.task_management.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.hagiabao.task_management.dto.request.CreateWorkspaceRequest;
@@ -46,5 +49,19 @@ public class WorkspaceService {
         workspaceMemberRepository.save(wsm);
 
         return new WorkspaceResponse(savedWs.getId(),savedWs.getName());
+    }
+    public List<WorkspaceResponse> getAllWorkspaceResponse(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại!"));
+
+        List<WorkspaceMember> workspaceList= workspaceMemberRepository.findByUserId(userId);
+        List<WorkspaceResponse> res = new ArrayList<>();
+
+         for (WorkspaceMember member : workspaceList) {
+            Workspace ws = member.getWorkspace();
+            res.add(new WorkspaceResponse(ws.getId(), ws.getName()));
+        }
+         return res;
+         
     }
 }
