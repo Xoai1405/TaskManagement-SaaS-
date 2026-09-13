@@ -9,6 +9,6 @@ import com.hagiabao.task_management.entity.User;
 
 @Repository 
 public interface   UserRepository extends  JpaRepository<User, Long> {
-    Optional<User> findfindByEmail(String email);
+    Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 }
