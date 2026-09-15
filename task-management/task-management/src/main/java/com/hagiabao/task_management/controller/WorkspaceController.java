@@ -36,5 +36,8 @@ public class WorkspaceController {
         WorkspaceResponse response = workspaceService.createWorkspace(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    
+    
     
 }
