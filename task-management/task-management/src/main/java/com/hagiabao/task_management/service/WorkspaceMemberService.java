@@ -3,7 +3,9 @@ package com.hagiabao.task_management.service;
 import org.springframework.stereotype.Service;
 
 import com.hagiabao.task_management.dto.request.AddUserToWorkspaceRequest;
+import com.hagiabao.task_management.dto.request.ChangeStatusMemberRequest;
 import com.hagiabao.task_management.dto.response.UserResponse;
+import com.hagiabao.task_management.dto.response.WorkspaceMemberResponse;
 import com.hagiabao.task_management.entity.Status;
 import com.hagiabao.task_management.entity.User;
 import com.hagiabao.task_management.entity.Workspace;
@@ -37,5 +39,13 @@ public class WorkspaceMemberService {
        workspaceMemberRepo.save(wsm);
 
         return new UserResponse(user.getId(),request.email(),request.role());
+    }
+    @Transactional
+    public WorkspaceMemberResponse ChangeStatusMember(ChangeStatusMemberRequest request, Long workspaceId, Long userId){
+        WorkspaceMember wsm = workspaceMemberRepo.findByUserIdAndWorkspaceId(userId, workspaceId).orElseThrow(()-> new RuntimeException("Workspace không tồn tại!"));
+        
+        wsm.setStatus(request.status());
+        workspaceMemberRepo.save(wsm);
+        return new WorkspaceMemberResponse(userId, workspaceId, request.status());
     }
 }
