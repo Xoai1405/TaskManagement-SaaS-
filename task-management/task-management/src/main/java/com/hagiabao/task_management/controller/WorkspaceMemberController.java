@@ -19,7 +19,7 @@ import com.hagiabao.task_management.service.WorkspaceMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@RestController 
+@RestController
 @RequestMapping ("/api/v1/workspaces")
 @RequiredArgsConstructor 
 public class WorkspaceMemberController {
