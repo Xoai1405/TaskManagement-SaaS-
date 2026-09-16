@@ -175,4 +175,14 @@ public TaskResponse updateTaskInfo(Long teamId, Long taskId, UpdateTaskRequest r
         );
     }
 
+    @Transactional
+    public void softDeleteTask(Long teamId, Long taskId) {
+        Task task = taskRepo.findById(taskId)
+                .filter(t -> t.getTeam().getId().equals(teamId) && t.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Task không tồn tại hoặc đã bị xóa!"));
+
+        task.setDeletedAt(LocalDateTime.now());
+        taskRepo.save(task);
+    }
+
 }

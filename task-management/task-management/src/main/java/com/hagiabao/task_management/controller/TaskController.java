@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,6 +55,14 @@ public class TaskController {
         @PathVariable Long taskId,
         @Valid @RequestBody UpdateTaskStageRequest request) {
         return ResponseEntity.ok(taskSer.updateTaskStage(teamId, taskId, request));
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> softDeleteTask(
+            @PathVariable Long teamId,
+            @PathVariable Long taskId) {
+        taskSer.softDeleteTask(teamId, taskId);
+        return ResponseEntity.noContent().build();
     }
     
 }
