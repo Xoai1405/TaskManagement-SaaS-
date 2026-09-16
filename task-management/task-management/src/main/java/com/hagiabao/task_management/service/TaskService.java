@@ -7,6 +7,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.hagiabao.task_management.dto.request.CreateTaskRequest;
+import com.hagiabao.task_management.dto.request.UpdateTaskRequest;
+import com.hagiabao.task_management.dto.request.UpdateTaskStageRequest;
 import com.hagiabao.task_management.dto.response.TaskResponse;
 import com.hagiabao.task_management.entity.Stage;
 import com.hagiabao.task_management.entity.Task;
@@ -98,5 +100,79 @@ public TaskResponse createTask(Long teamId, CreateTaskRequest request) {
         savedTask.getCreatedBy().getId()
     );
 }
+
+@Transactional
+public TaskResponse updateTaskInfo(Long teamId, Long taskId, UpdateTaskRequest request) {
+    // 1. Kiểm tra Task có tồn tại trong Team và chưa bị xóa mềm không
+    Task task = taskRepo.findById(taskId)
+            .filter(t -> t.getTeam().getId().equals(teamId) && t.getDeletedAt() == null)
+            .orElseThrow(() -> new RuntimeException("Task không tồn tại trong Team này!"));
+
+    // 2. Cập nhật các trường thông tin nếu được truyền lên
+    if (request.title() != null && !request.title().isBlank()) {
+        task.setTitle(request.title());
+    }
+    if (request.priority() != null) {
+        task.setPriorityLevel(request.priority());
+    }
+    if (request.deadline() != null) {
+        task.setDeadline(request.deadline());
+    }
+
+    // 3. Cập nhật danh sách phân công công việc (nếu client có truyền assigneeIds)
+    if (request.assigneeIds() != null) {
+    // 1. Xóa phân công cũ
+    taskAssignmentRepo.deleteByTaskId(taskId);
+    
+    // 2. Ép Hibernate đẩy lệnh DELETE xuống DB ngay lập tức
+    taskAssignmentRepo.flush();
+
+    // 3. Tạo và lưu phân công mới
+    if (!request.assigneeIds().isEmpty()) {
+        List<User> newAssignees = userRepo.findAllById(request.assigneeIds());
+        List<TaskAssignment> newAssignments = newAssignees.stream()
+                .map(user -> new TaskAssignment(null, user, task))
+                .toList();
+        taskAssignmentRepo.saveAll(newAssignments);
+    }
+}
+
+    Task updatedTask = taskRepo.save(task);
+
+    // 4. Trả về DTO
+    return new TaskResponse(
+        updatedTask.getId(),
+        updatedTask.getTitle(),
+        updatedTask.getStage(),
+        updatedTask.getCreatedAt(),
+        updatedTask.getDeadline(),
+        updatedTask.getPriorityLevel(),
+        updatedTask.getDeletedAt(),
+        updatedTask.getParentTask() != null ? updatedTask.getParentTask().getId() : null,
+        updatedTask.getCreatedBy().getId()
+    );
+    }
+
+    @Transactional
+    public TaskResponse updateTaskStage(Long teamId, Long taskId, UpdateTaskStageRequest request) {
+        Task task = taskRepo.findById(taskId)
+                .filter(t -> t.getTeam().getId().equals(teamId) && t.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Task không tồn tại trong Team này!"));
+
+        task.setStage(request.stage());
+        Task updatedTask = taskRepo.save(task);
+
+        return new TaskResponse(
+            updatedTask.getId(),
+            updatedTask.getTitle(),
+            updatedTask.getStage(),
+            updatedTask.getCreatedAt(),
+            updatedTask.getDeadline(),
+            updatedTask.getPriorityLevel(),
+            updatedTask.getDeletedAt(),
+            updatedTask.getParentTask() != null ? updatedTask.getParentTask().getId() : null,
+            updatedTask.getCreatedBy().getId()
+        );
+    }
 
 }
