@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.hagiabao.task_management.dto.request.CreateTeamRequest;
 import com.hagiabao.task_management.dto.response.TeamResponse;
 import com.hagiabao.task_management.entity.Team;
+import com.hagiabao.task_management.entity.Workspace;
 import com.hagiabao.task_management.repository.TeamRepository;
 import com.hagiabao.task_management.repository.WorkspaceRepository;
 
@@ -32,11 +33,11 @@ public class TeamService {
     }
     @Transactional 
     public TeamResponse CreateTeam( CreateTeamRequest request, Long workspaceId) {
-        workspaceRepo.findById(workspaceId).orElseThrow(()-> new RuntimeException("Workspace không tồn tại!"));
+        Workspace ws = workspaceRepo.findById(workspaceId).orElseThrow(()-> new RuntimeException("Workspace không tồn tại!"));
 
        Team newTeam = new Team();
        newTeam.setName(request.name());
-       newTeam.setWorkspaceId(workspaceId);
+       newTeam.setWorkspace(ws);
        newTeam = teamRepo.save(newTeam);
 
        return new TeamResponse(newTeam.getId(),newTeam.getName());
