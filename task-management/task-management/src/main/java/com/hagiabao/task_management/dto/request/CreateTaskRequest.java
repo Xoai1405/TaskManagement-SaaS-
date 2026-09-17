@@ -20,5 +20,7 @@ public record CreateTaskRequest(
     
     LocalDateTime deadline,
     
-    List<Long> assigneeIds
+    List<Long> assigneeIds,
+
+    Long parentTaskId
 ) {}

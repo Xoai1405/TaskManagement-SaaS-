@@ -10,4 +10,5 @@ import com.hagiabao.task_management.entity.Task;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByTeamIdAndDeletedAtIsNull(Long teamId);
+    List<Task> findByParentTaskIdAndDeletedAtIsNull(Long parentTaskId);
 }

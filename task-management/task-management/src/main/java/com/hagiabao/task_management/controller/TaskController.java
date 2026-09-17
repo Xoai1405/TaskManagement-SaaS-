@@ -14,46 +14,49 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hagiabao.task_management.dto.request.CreateTaskRequest;
+import com.hagiabao.task_management.dto.request.UpdateSubtaskStatusRequest;
 import com.hagiabao.task_management.dto.request.UpdateTaskRequest;
 import com.hagiabao.task_management.dto.request.UpdateTaskStageRequest;
+import com.hagiabao.task_management.dto.response.SubtaskResponse;
 import com.hagiabao.task_management.dto.response.TaskResponse;
 import com.hagiabao.task_management.service.TaskService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-
 @RestController 
-@RequestMapping ("/api/v1/teams/{teamId}/tasks")
+@RequestMapping("/api/v1/teams/{teamId}/tasks")
 @RequiredArgsConstructor 
 public class TaskController {
+
     private final TaskService taskSer;
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<TaskResponse>> getAllTaskInTeam(@PathVariable Long teamId) {
         return ResponseEntity.status(HttpStatus.OK).body(taskSer.getAllTaskInTeam(teamId));
     }
+
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
-        @PathVariable Long teamId,
-        @Valid @RequestBody CreateTaskRequest request) {
+            @PathVariable Long teamId,
+            @Valid @RequestBody CreateTaskRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(taskSer.createTask(teamId, request));
+                .body(taskSer.createTask(teamId, request));
     }
-    
+
     @PatchMapping("/{taskId}")
     public ResponseEntity<TaskResponse> updateTaskInfo(
-        @PathVariable Long teamId,
-        @PathVariable Long taskId,
-        @RequestBody UpdateTaskRequest request) {
+            @PathVariable Long teamId,
+            @PathVariable Long taskId,
+            @RequestBody UpdateTaskRequest request) {
         return ResponseEntity.ok(taskSer.updateTaskInfo(teamId, taskId, request));
     }
 
     @PatchMapping("/{taskId}/stage")
     public ResponseEntity<TaskResponse> updateTaskStage(
-        @PathVariable Long teamId,
-        @PathVariable Long taskId,
-        @Valid @RequestBody UpdateTaskStageRequest request) {
+            @PathVariable Long teamId,
+            @PathVariable Long taskId,
+            @Valid @RequestBody UpdateTaskStageRequest request) {
         return ResponseEntity.ok(taskSer.updateTaskStage(teamId, taskId, request));
     }
 
@@ -64,5 +67,31 @@ public class TaskController {
         taskSer.softDeleteTask(teamId, taskId);
         return ResponseEntity.noContent().build();
     }
-    
+
+    // ================= SUBTASK ENDPOINTS =================
+
+    @GetMapping("/{taskId}/subtasks")
+    public ResponseEntity<List<SubtaskResponse>> getSubtasks(
+            @PathVariable Long teamId,
+            @PathVariable Long taskId) {
+        return ResponseEntity.ok(taskSer.getSubtasks(teamId, taskId));
+    }
+
+    @PatchMapping("/{taskId}/subtasks/{subtaskId}")
+    public ResponseEntity<SubtaskResponse> updateSubtaskStatus(
+            @PathVariable Long teamId,
+            @PathVariable Long taskId,
+            @PathVariable Long subtaskId,
+            @Valid @RequestBody UpdateSubtaskStatusRequest request) {
+        return ResponseEntity.ok(taskSer.updateSubtaskStatus(teamId, taskId, subtaskId, request));
+    }
+
+    @DeleteMapping("/{taskId}/subtasks/{subtaskId}")
+    public ResponseEntity<Void> deleteSubtask(
+            @PathVariable Long teamId,
+            @PathVariable Long taskId,
+            @PathVariable Long subtaskId) {
+        taskSer.deleteSubtask(teamId, taskId, subtaskId);
+        return ResponseEntity.noContent().build();
+    }
 }

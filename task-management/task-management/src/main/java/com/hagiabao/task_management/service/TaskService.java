@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.hagiabao.task_management.dto.request.CreateTaskRequest;
+import com.hagiabao.task_management.dto.request.UpdateSubtaskStatusRequest;
 import com.hagiabao.task_management.dto.request.UpdateTaskRequest;
 import com.hagiabao.task_management.dto.request.UpdateTaskStageRequest;
+import com.hagiabao.task_management.dto.response.SubtaskResponse;
 import com.hagiabao.task_management.dto.response.TaskResponse;
 import com.hagiabao.task_management.entity.Stage;
 import com.hagiabao.task_management.entity.Task;
@@ -20,7 +23,6 @@ import com.hagiabao.task_management.repository.TaskRepository;
 import com.hagiabao.task_management.repository.TeamRepository;
 import com.hagiabao.task_management.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service 
@@ -60,6 +62,7 @@ public TaskResponse createTask(Long teamId, CreateTaskRequest request) {
     User creator = userRepo.findById(request.createdBy())
             .orElseThrow(() -> new RuntimeException("User tạo task không tồn tại!"));
 
+    
     // 1. Khởi tạo và lưu Task
     Task task = new Task();
     task.setTitle(request.title());
@@ -72,6 +75,11 @@ public TaskResponse createTask(Long teamId, CreateTaskRequest request) {
     task.setCreatedAt(LocalDateTime.now());
 
     Task savedTask = taskRepo.save(task);
+    if (request.parentTaskId() != null) {
+        Task parentTask = taskRepo.findById(request.parentTaskId())
+            .orElseThrow(() -> new RuntimeException("Task cha không tồn tại!"));
+        task.setParentTask(parentTask);
+    }
 
     // 2. Lưu thông tin phân công công việc (TaskAssignment)
     if (request.assigneeIds() != null && !request.assigneeIds().isEmpty()) {
@@ -183,6 +191,57 @@ public TaskResponse updateTaskInfo(Long teamId, Long taskId, UpdateTaskRequest r
 
         task.setDeletedAt(LocalDateTime.now());
         taskRepo.save(task);
+    }
+
+    //Lấy danh sách Subtask của Task
+    @Transactional(readOnly = true)
+    public List<SubtaskResponse> getSubtasks(Long teamId, Long taskId) {
+        // Kiểm tra task cha có tồn tại không
+        taskRepo.findById(taskId)
+                .filter(t -> t.getTeam().getId().equals(teamId) && t.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Task cha không tồn tại!"));
+
+        return taskRepo.findByParentTaskIdAndDeletedAtIsNull(taskId).stream()
+                .map(sub -> new SubtaskResponse(
+                        sub.getId(),
+                        sub.getTitle(),
+                        sub.getStage() == Stage.COMPLETED
+                ))
+                .toList();
+    }
+
+    // Cập nhật trạng thái hoàn thành Subtask (Tick/Untick)
+    @Transactional
+    public SubtaskResponse updateSubtaskStatus(Long teamId, Long taskId, Long subtaskId, UpdateSubtaskStatusRequest request) {
+        Task subtask = taskRepo.findById(subtaskId)
+                .filter(t -> t.getParentTask() != null 
+                        && t.getParentTask().getId().equals(taskId) 
+                        && t.getTeam().getId().equals(teamId) 
+                        && t.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Subtask không tồn tại trong Task này!"));
+
+        subtask.setStage(Boolean.TRUE.equals(request.isCompleted()) ? Stage.COMPLETED : Stage.TODO);
+        Task savedSubtask = taskRepo.save(subtask);
+
+        return new SubtaskResponse(
+                savedSubtask.getId(),
+                savedSubtask.getTitle(),
+                savedSubtask.getStage() == Stage.COMPLETED
+        );
+    }
+
+    //Xóa Subtask (Soft delete)
+    @Transactional
+    public void deleteSubtask(Long teamId, Long taskId, Long subtaskId) {
+        Task subtask = taskRepo.findById(subtaskId)
+                .filter(t -> t.getParentTask() != null 
+                        && t.getParentTask().getId().equals(taskId) 
+                        && t.getTeam().getId().equals(teamId) 
+                        && t.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Subtask không tồn tại!"));
+
+        subtask.setDeletedAt(LocalDateTime.now());
+        taskRepo.save(subtask);
     }
 
 }
