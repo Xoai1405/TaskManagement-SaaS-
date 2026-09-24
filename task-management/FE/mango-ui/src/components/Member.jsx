@@ -12,7 +12,7 @@ function Member() {
     { id: 3, avatar: "ĐA", name: "Đức Anh", email: "ducanh@gmail.com", role: "MEMBER", status: "INACTIVE", bg: "bg-[#059669]" },
   ];
 
-  // Helper render Trạng thái (Chấm màu + Chữ)
+  // Helper render Trạng thái
   const renderStatus = (status) => {
     const config = {
       ACTIVE: { text: "Đang hoạt động", dot: "bg-emerald-500" },
@@ -40,19 +40,17 @@ function Member() {
     <div className="space-y-6">
       {/* KHỐI 1: TIÊU ĐỀ & NÚT THÊM THÀNH VIÊN */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-900">
-          Thành viên workspace
-        </h1>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-colors">
+        <h1 className="page-title mb-0">Thành viên workspace</h1>
+        <button className="btn-primary">
           <Plus className="w-4 h-4" /> Thêm thành viên
         </button>
       </div>
 
-      {/* KHỐI 2: Ô TÌM KIẾM (ĐÃ THÊM relative) */}
-      <div className="relative">
+      {/* KHỐI 2: Ô TÌM KIẾM */}
+     <div className="relative">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
         <input
-          className="w-full bg-white border border-slate-200/90 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-400 shadow-sm"
+          className="input-field"
           type="text"
           placeholder="Tìm thành viên..."
           value={searchTerm}
@@ -61,17 +59,16 @@ function Member() {
       </div>
 
       {/* KHỐI 3: BẢNG DANH SÁCH THÀNH VIÊN */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        
-        {/* HEADER CỦA BẢNG */}
-        <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-100 text-xs font-bold text-slate-500">
+      <div className="table-container">
+        {/* HEADER BẢNG */}
+        <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-100 text-xs font-bold text-slate-500 bg-slate-50/60">
           <div className="col-span-4">Thành viên</div>
           <div className="col-span-4">Email</div>
           <div className="col-span-2">Vai trò</div>
           <div className="col-span-2">Trạng thái</div>
         </div>
 
-        {/* CÁC DÒNG THÀNH VIÊN */}
+        {/* DÒNG THÀNH VIÊN */}
         <div className="divide-y divide-slate-100">
           {filteredMembers.map((member) => (
             <div
@@ -81,7 +78,7 @@ function Member() {
               {/* Cột 1: Avatar + Tên */}
               <div className="col-span-4 flex items-center gap-3">
                 <div
-                  className={`w-9 h-9 rounded-full text-white font-bold text-xs flex items-center justify-center flex-shrink-0 ${member.bg}`}
+                  className={`w-9 h-9 rounded-full text-white font-bold text-xs flex items-center justify-center shrink-0 ${member.bg}`}
                 >
                   {member.avatar}
                 </div>
@@ -97,7 +94,7 @@ function Member() {
               <div className="col-span-2">
                 <select
                   defaultValue={member.role}
-                  className="bg-white border border-indigo-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full outline-none cursor-pointer focus:border-indigo-500 transition-all"
+                  className="select-field text-xs py-1.5 px-3 rounded-full border-indigo-200"
                 >
                   <option value="ADMIN">Admin</option>
                   <option value="LEADER">Leader</option>
@@ -111,7 +108,6 @@ function Member() {
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );

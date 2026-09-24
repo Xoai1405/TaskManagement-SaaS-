@@ -77,24 +77,33 @@ function Kanban() {
 
   // Mảng định nghĩa các cột trên Bảng
   const COLUMNS = [
-    { name: "Cần làm", dotColor: "bg-slate-400" },
-    { name: "Đang thực hiện", dotColor: "bg-indigo-600" },
-    { name: "Hoàn thành", dotColor: "bg-emerald-500" },
+    { name: "Cần làm", dotColor: "bg-slate-400", titleColor: "col-title-todo" },
+    {
+      name: "Đang thực hiện",
+      dotColor: "bg-indigo-600",
+      titleColor: "col-title-doing",
+    },
+    {
+      name: "Hoàn thành",
+      dotColor: "bg-emerald-500",
+      titleColor: "col-title-done",
+    },
   ];
 
-  // Helper Render Badge Ưu tiên
+  // Helper Render Badge Ưu tiên (Sử dụng class từ index.css)
   const renderPriorityBadge = (priority) => {
-    const styles = {
-      Cao: { bg: "bg-rose-50 text-rose-600", dot: "bg-rose-500" },
-      "Trung bình": { bg: "bg-amber-50 text-amber-600", dot: "bg-amber-500" },
-      Thấp: { bg: "bg-emerald-50 text-emerald-600", dot: "bg-emerald-500" },
+    const priorityMap = {
+      Cao: { badge: "badge-priority-high", dot: "dot-priority-high" },
+      "Trung bình": {
+        badge: "badge-priority-medium",
+        dot: "dot-priority-medium",
+      },
+      Thấp: { badge: "badge-priority-low", dot: "dot-priority-low" },
     };
-    const current = styles[priority] || styles["Thấp"];
+    const current = priorityMap[priority] || priorityMap["Thấp"];
     return (
-      <span
-        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${current.bg}`}
-      >
-        <span className={`w-1.5 h-1.5 rounded-full ${current.dot}`}></span>
+      <span className={current.badge}>
+        <span className={current.dot}></span>
         {priority}
       </span>
     );
@@ -131,8 +140,8 @@ function Kanban() {
     <div className="space-y-6">
       {/* HEADER BẢNG KANBAN */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-900">Bảng Kanban</h1>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-colors">
+        <h1 className="page-title mb-0">Bảng Kanban</h1>
+        <button className="btn-primary">
           <Plus className="w-4 h-4" /> Công việc mới
         </button>
       </div>
@@ -147,26 +156,20 @@ function Kanban() {
           return (
             <div
               key={col.name}
-              className="bg-[#ebedf5]/70 p-4 rounded-2xl border border-slate-200/50 min-h-[500px]"
+              className="bg-slate-100/60 p-4 rounded-2xl border border-slate-200/60 min-h-[500px]"
             >
-              {/* HEADER CỘT  */}
+              {/* HEADER CỘT */}
               <div className="flex justify-between items-center mb-4 px-1">
-                <div className="flex items-center gap-2.5 font-bold text-slate-800 text-sm">
-                  {/* Chấm màu trạng thái */}
+                <div className="flex items-center gap-2.5 font-bold text-sm">
                   <span
                     className={`w-2.5 h-2.5 rounded-full ${col.dotColor}`}
                   ></span>
-
-                  {/* Tên cột */}
-                  <span>{col.name}</span>
-
-                  {/* Badge đếm số lượng */}
-                  <span className="w-5 h-5 rounded-full bg-white text-slate-600 text-xs font-semibold flex items-center justify-center shadow-sm">
+                  <span className={col.titleColor}>{col.name}</span>
+                  <span className="w-5 h-5 rounded-full bg-white text-slate-600 text-xs font-semibold flex items-center justify-center shadow-xs">
                     {columnTasks.length}
                   </span>
                 </div>
 
-                {/* Nút cộng bên phải */}
                 <button className="text-slate-400 hover:text-slate-600 p-1 transition-colors">
                   <Plus className="w-4 h-4" />
                 </button>
@@ -178,11 +181,9 @@ function Kanban() {
                   <div
                     key={task.id}
                     onClick={() => setSelectedTask(task)}
-                    className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all cursor-pointer space-y-3"
+                    className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer space-y-3"
                   >
-                    <p className="font-semibold text-slate-800 text-sm leading-snug">
-                      {task.title}
-                    </p>
+                    <p className="task-title leading-snug">{task.title}</p>
 
                     <div className="flex items-center justify-between text-xs pt-1">
                       <div className="flex items-center gap-2.5">

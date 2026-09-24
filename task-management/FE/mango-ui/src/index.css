@@ -1,38 +1,139 @@
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@theme {
 
-/* Thiết lập font chữ mặc định cho toàn bộ ứng dụng */
-body {
-  font-family: 'Be Vietnam Pro', sans-serif;
+  --color-mango-500: #E4820F;
+  --color-mango-600: #C95A00; /* nền nút ở trạng thái thường */
+  --color-mango-700: #A84B00; /* nền nút khi hover */
+  --color-mango-800: #874000; /* nền nút khi bấm giữ (active) */
+  --color-mango-900: #5A3200;
 }
 
-@layer components {
-  /* Giảm font-weight bớt nặng nề */
-  .page-title {
-    @apply text-2xl font-bold text-[#5A3200] mb-5;
-  }
+/* ==========================================================================
+   1. TYPOGRAPHY & TITLES (Tiêu đề, nhãn, con số)
+   ========================================================================== */
+.page-title {
+  @apply text-2xl font-extrabold mb-6 tracking-tight text-inherit;
+}
 
-  .card-title {
-    @apply text-lg font-bold text-[#5A3200];
-  }
+.card-title {
+  @apply text-base font-bold tracking-tight text-inherit;
+}
 
-  .dash-card {
-    @apply bg-white rounded-2xl p-6 shadow-sm border border-slate-100;
-  }
+.stat-label {
+  @apply text-xs font-medium uppercase tracking-wider text-slate-500;
+}
 
-  .stat-hero-number {
-    @apply text-4xl font-bold text-[#5A3200];
-  }
+.stat-hero-number {
+  @apply text-4xl font-extrabold tracking-tight;
+}
 
-  .stat-sub-number {
-    @apply text-2xl font-bold text-[#5A3200];
-  }
+.stat-sub-number {
+  @apply text-sm font-bold;
+}
 
-  .stat-label {
-    @apply text-xs font-semibold text-slate-500;
-  }
+.task-title {
+  @apply font-semibold text-sm transition-colors hover:text-mango-600;
+}
 
-  .task-title {
-    @apply text-sm font-semibold text-[#5A3200];
-  }
+.subtask-hint {
+  @apply text-xs mt-0.5 flex items-center gap-1 text-mango-900/45;
+}
+.subtask-hint-title {
+  @apply text-mango-900/70 font-medium;
+}
+/* ==========================================================================
+   2. CARDS & CONTAINERS (Thẻ chứa, Khung bảng)
+   ========================================================================== */
+.dash-card {
+  @apply bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs;
+}
+
+.table-container {
+  @apply bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden;
+}
+
+.table-header {
+  @apply grid grid-cols-[1fr_140px_130px_120px_130px] items-center px-6 py-3.5 border-b border-slate-100 bg-slate-50/60 text-xs font-semibold text-slate-500;
+}
+
+.table-row {
+  @apply w-full grid grid-cols-[1fr_140px_130px_120px_130px] items-center px-6 py-4 hover:bg-slate-50/80 transition-colors text-left border-b border-slate-100 last:border-b-0 cursor-pointer;
+}
+
+/* ==========================================================================
+   3. BADGES (Nhãn Trạng thái & Độ ưu tiên)
+   ========================================================================== */
+.badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border;
+}
+
+/* Trạng thái công việc */
+.badge-done {
+  @apply bg-emerald-50 text-emerald-700 border-emerald-200/60;
+}
+.badge-in-progress {
+  @apply bg-indigo-50 text-indigo-700 border-indigo-200/60;
+}
+.badge-todo {
+  @apply bg-slate-100 text-slate-600 border-slate-200/60;
+}
+.badge-overdue {
+  @apply bg-rose-50 text-rose-700 border-rose-200/60;
+}
+
+/* Độ ưu tiên */
+.badge-priority-high {
+  @apply bg-rose-50 text-rose-600 border border-rose-100 font-medium px-2.5 py-0.5 rounded-full text-xs inline-flex items-center gap-1.5;
+}
+.badge-priority-medium {
+  @apply bg-amber-50 text-amber-700 border border-amber-100 font-medium px-2.5 py-0.5 rounded-full text-xs inline-flex items-center gap-1.5;
+}
+.badge-priority-low {
+  @apply bg-violet-50 text-violet-700 border border-violet-100 font-medium px-2.5 py-0.5 rounded-full text-xs inline-flex items-center gap-1.5;
+}
+.col-title-todo  { @apply text-slate-500; }
+.col-title-doing { @apply text-indigo-700; }
+.col-title-done  { @apply text-emerald-700; }
+
+/* Dots cho Badge */
+.dot-done { @apply w-1.5 h-1.5 rounded-full bg-emerald-500; }
+.dot-in-progress { @apply w-1.5 h-1.5 rounded-full bg-indigo-500; }
+.dot-todo { @apply w-1.5 h-1.5 rounded-full bg-slate-400; }
+.dot-overdue { @apply w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse; }
+.dot-priority-high { @apply w-1.5 h-1.5 rounded-full bg-rose-500; }
+.dot-priority-medium { @apply w-1.5 h-1.5 rounded-full bg-amber-500; }
+.dot-priority-low {  @apply w-1.5 h-1.5 rounded-full bg-violet-500; }
+
+/* ==========================================================================
+   4. BUTTONS & INPUTS (Nút bấm, Ô tìm kiếm, Combobox)
+   ========================================================================== */
+.btn-primary {
+  @apply bg-mango-500 hover:bg-mango-600 active:bg-mango-800 text-white font-medium px-4 py-2.5 rounded-xl text-sm inline-flex items-center gap-2 transition-all shadow-xs cursor-pointer;
+}
+.input-field {
+  @apply w-full bg-white border border-slate-200 rounded-xl !pl-10 pr-4 py-2.5 text-sm outline-none focus:border-mango-500 focus:ring-1 focus:ring-mango-500 transition-all placeholder:text-slate-400;
+}
+.select-field {
+  @apply bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:!border-mango-500 transition-all cursor-pointer;
+}
+
+/* ==========================================================================
+   5. AVATAR & USER ICONS
+   ========================================================================== */
+.avatar-mango {
+  @apply rounded-full bg-slate-900 text-amber-400 font-bold flex items-center justify-center ring-2 ring-indigo-500/20 shrink-0;
+}/* ==========================================================================
+   6.TABS
+   ========================================================================== */
+.team-tab {
+  @apply flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold transition-all bg-white text-slate-700 border border-slate-200 hover:bg-slate-50;
+}
+.team-tab-active {
+  @apply flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold transition-all bg-mango-900 text-white shadow-xs;
+}
+.team-tab-count {
+  @apply w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold bg-slate-100 text-slate-600;
+}
+.team-tab-count-active {
+  @apply w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold bg-mango-700 text-white;
 }

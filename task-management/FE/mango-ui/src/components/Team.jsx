@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
 function Team() {
   const team = [
@@ -7,30 +8,68 @@ function Team() {
   ];
 
   const memberTeam = [
-    { id: 1, avatar: "HB", name: "Hà Gia Bảo", email: "hagiabao@gmail.com", role: "ADMIN", id_team: 1, status: "ACTIVE" },
-    { id: 2, avatar: "QH", name: "Quốc Huy", email: "quochuy@gmail.com", role: "LEADER", id_team: 1, status: "ACTIVE" },
-    { id: 3, avatar: "ĐA", name: "Đức Anh", email: "ducanh@gmail.com", role: "MEMBER", id_team: 1, status: "INACTIVE" },
-    { id: 4, avatar: "MA", name: "Minh Anh", email: "minhanh@gmail.com", role: "MEMBER", id_team: 2, status: "ACTIVE" },
-    { id: 5, avatar: "TT", name: "Thu Trang", email: "thutrang@gmail.com", role: "VIEWER", id_team: 2, status: "INVITE" },
+    {
+      id: 1,
+      avatar: "HB",
+      name: "Hà Gia Bảo",
+      email: "hagiabao@gmail.com",
+      role: "ADMIN",
+      id_team: 1,
+      status: "ACTIVE",
+    },
+    {
+      id: 2,
+      avatar: "QH",
+      name: "Quốc Huy",
+      email: "quochuy@gmail.com",
+      role: "LEADER",
+      id_team: 1,
+      status: "ACTIVE",
+    },
+    {
+      id: 3,
+      avatar: "ĐA",
+      name: "Đức Anh",
+      email: "ducanh@gmail.com",
+      role: "MEMBER",
+      id_team: 1,
+      status: "INACTIVE",
+    },
+    {
+      id: 4,
+      avatar: "MA",
+      name: "Minh Anh",
+      email: "minhanh@gmail.com",
+      role: "MEMBER",
+      id_team: 2,
+      status: "ACTIVE",
+    },
+    {
+      id: 5,
+      avatar: "TT",
+      name: "Thu Trang",
+      email: "thutrang@gmail.com",
+      role: "VIEWER",
+      id_team: 2,
+      status: "INVITE",
+    },
   ];
 
   const [selectedTeamId, setSelectedTeamId] = useState(1);
 
-  // Lọc danh sách thành viên thuộc team đang chọn
   const filterTeamMemberByTeamId = memberTeam.filter(
-    (member) => member.id_team === selectedTeamId
+    (member) => member.id_team === selectedTeamId,
   );
 
-  // Lấy tên team đang chọn
   const currentTeam = team.find((t) => t.id === selectedTeamId);
 
   // Helper đổi màu Badge Role
   const renderRoleBadge = (role) => {
     const roleStyles = {
-      ADMIN: "bg-indigo-50 text-indigo-700",
-      LEADER: "bg-amber-50 text-amber-700",
-      MEMBER: "bg-slate-100 text-slate-600",
-      VIEWER: "bg-emerald-50 text-emerald-700",
+      ADMIN: "bg-indigo-50 text-indigo-700 border-indigo-200/60",
+      LEADER: "bg-amber-50 text-amber-700 border-amber-200/60",
+      MEMBER: "bg-slate-100 text-slate-600 border-slate-200/60",
+      VIEWER: "bg-emerald-50 text-emerald-700 border-emerald-200/60",
     };
 
     const roleLabels = {
@@ -42,8 +81,8 @@ function Team() {
 
     return (
       <span
-        className={`text-xs font-semibold px-3 py-1 rounded-full ${
-          roleStyles[role] || "bg-slate-100 text-slate-600"
+        className={`text-xs font-semibold px-3 py-1 rounded-full border ${
+          roleStyles[role] || "bg-slate-100 text-slate-600 border-slate-200/60"
         }`}
       >
         {roleLabels[role] || role}
@@ -54,32 +93,25 @@ function Team() {
   return (
     <div className="space-y-6">
       {/* 1. TIÊU ĐỀ */}
-      <h2 className="text-2xl font-bold text-slate-900">Quản lý team</h2>
+      <h1 className="page-title mb-0">Quản lý team</h1>
 
       {/* 2. CÁC NÚT TAB CHỌN TEAM & BUTTON THÊM TEAM */}
       <div className="flex items-center gap-3">
         {team.map((t) => {
-          // CHECK ISACTIVE BÊN TRONG HÀM MAP NÀY MỚI ĐÚNG
           const isActive = t.id === selectedTeamId;
-          const memberCount = memberTeam.filter((m) => m.id_team === t.id).length;
+          const memberCount = memberTeam.filter(
+            (m) => m.id_team === t.id,
+          ).length;
 
           return (
             <button
               key={t.id}
               onClick={() => setSelectedTeamId(t.id)}
-              className={`flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                isActive
-                  ? "bg-slate-900 text-white shadow-sm"
-                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
-              }`}
+              className={isActive ? "team-tab-active" : "team-tab"}
             >
               <span>{t.name}</span>
               <span
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                  isActive
-                    ? "bg-slate-700 text-white"
-                    : "bg-slate-100 text-slate-600"
-                }`}
+                className={isActive ? "team-tab-count-active" : "team-tab-count"}
               >
                 {memberCount}
               </span>
@@ -88,27 +120,24 @@ function Team() {
         })}
 
         {/* Nút tròn Thêm team (+) */}
-        <button className="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-600 font-bold transition-colors">
-          +
+        <button className="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-600 font-bold transition-colors cursor-pointer">
+          <Plus className="w-4 h-4" />
         </button>
       </div>
 
-      {/* 3. KHUNG HIỂN THỊ THÀNH VIÊN (CARD NỀN TRẮNG BỌC NGOÀI) */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-6">
-        
+      {/* 3. KHUNG HIỂN THỊ THÀNH VIÊN */}
+      <div className="dash-card p-6 space-y-6">
         {/* Header khung thành viên */}
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">
-              {currentTeam?.name}
-            </h3>
+            <h3 className="card-title text-xl">{currentTeam?.name}</h3>
             <p className="text-xs text-slate-400 mt-1">
               Chỉ thành viên đã có trong workspace mới thêm được vào team
             </p>
           </div>
 
-          <button className="flex items-center gap-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold px-3.5 py-2 rounded-xl text-sm transition-colors">
-            + Thêm vào team
+          <button className="btn-primary">
+            <Plus className="w-4 h-4" /> Thêm vào team
           </button>
         </div>
 
@@ -121,12 +150,10 @@ function Team() {
             >
               {/* Bên trái: Avatar + Tên + Email */}
               <div className="flex items-center gap-3.5">
-                {/* Khối Avatar Tròn */}
-                <div className="w-11 h-11 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                <div className="avatar-mango w-11 h-11 text-sm">
                   {member.avatar}
                 </div>
 
-                {/* Khối Thông tin */}
                 <div>
                   <p className="font-bold text-slate-800 text-sm">
                     {member.name}
@@ -142,7 +169,6 @@ function Team() {
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );

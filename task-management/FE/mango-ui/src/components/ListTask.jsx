@@ -1,15 +1,7 @@
 import React, { useState } from "react";
-import {
-  LayoutDashboard,
-  ListTodo,
-  Kanban,
-  Users,
-  UserCheck,
-  Bell,
-  ChevronDown,
-  Search,
-} from "lucide-react";
+import { Search } from "lucide-react";
 import TaskDetail from "./TaskDetail";
+
 function ListTask() {
   const listTask = [
     {
@@ -85,71 +77,59 @@ function ListTask() {
   ];
 
   const [searchTerm, setSerchTerm] = useState("");
-  const [selectedStatus, setSetlectedStatus]= useState("");
-  const [selectedPriority, setSetlectedPriority]= useState("");
+  const [selectedStatus, setSetlectedStatus] = useState("");
+  const [selectedPriority, setSetlectedPriority] = useState("");
 
   const filteredTasks = listTask.filter((task) => {
-    return (task.title.toLowerCase().includes(searchTerm.toLowerCase()) 
-            &&(selectedStatus===""||task.status===selectedStatus)
-            &&(selectedPriority===""||task.priority===selectedPriority));
+    return (
+      task.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (selectedStatus === "" || task.status === selectedStatus) &&
+      (selectedPriority === "" || task.priority === selectedPriority)
+    );
   });
 
   const [selectedTask, setSelectedTask] = useState(null);
 
-  // Helper render Badge Trạng thái
+  // Helper render Badge Trạng thái bằng Class Design System
   const renderStatusBadge = (status) => {
-    const styles = {
-      "Hoàn thành": "bg-emerald-100 text-emerald-700",
-      "Đang thực hiện": "bg-indigo-100 text-indigo-700",
-      "Cần làm": "bg-slate-100 text-slate-600 border border-slate-200/80",
-      "Quá hạn": "bg-rose-100 text-rose-700",
+    const mapClass = {
+      "Hoàn thành": "badge badge-done",
+      "Đang thực hiện": "badge badge-in-progress",
+      "Cần làm": "badge badge-todo",
+      "Quá hạn": "badge badge-overdue",
     };
     return (
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-medium inline-block text-center ${styles[status] || styles["Cần làm"]}`}
-      >
+      <span className={mapClass[status] || "badge badge-todo"}>
         {status}
       </span>
     );
   };
 
-  // Helper render Badge Ưu tiên
+  // Helper render Badge Ưu tiên bằng Class Design System
   const renderPriorityBadge = (priority) => {
-    const styles = {
-      Cao: { bg: "bg-rose-50 text-rose-600", dot: "bg-rose-500" },
-      "Trung bình": { bg: "bg-amber-50 text-amber-600", dot: "bg-amber-500" },
-      Thấp: { bg: "bg-emerald-50 text-emerald-600", dot: "bg-emerald-500" },
+    const mapStyle = {
+      Cao: { badge: "badge-priority-high", dot: "dot-priority-high" },
+      "Trung bình": { badge: "badge-priority-medium", dot: "dot-priority-medium" },
+      Thấp: { badge: "badge-priority-low", dot: "dot-priority-low" },
     };
-    const current = styles[priority] || styles["Thấp"];
+    const current = mapStyle[priority] || mapStyle["Thấp"];
     return (
-      <span
-        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${current.bg}`}
-      >
-        <span className={`w-1.5 h-1.5 rounded-full ${current.dot}`}></span>
+      <span className={current.badge}>
+        <span className={current.dot}></span>
         {priority}
       </span>
     );
   };
 
-  // Helper render Avatar (Hỗ trợ 1 hoặc nhiều người)
+  // Helper render Avatar
   const renderAssignees = (assignees) => {
     const list = Array.isArray(assignees) ? assignees : [assignees];
-    const bgColors = [
-      "bg-[#1E293B]",
-      "bg-[#DC2626]",
-      "bg-[#D97706]",
-      "bg-[#059669]",
-      "bg-[#2563EB]",
-    ];
-
     return (
       <div className="flex items-center justify-center -space-x-2">
         {list.map((name, idx) => (
           <div
             key={idx}
-            className={`w-7 h-7 rounded-full text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white ${
-              bgColors[idx % bgColors.length]
-            }`}
+            className="avatar-mango w-7 h-7 text-[11px] ring-2 ring-white"
           >
             {name}
           </div>
@@ -162,19 +142,19 @@ function ListTask() {
     <div className="space-y-6">
       {/* KHỐI 1: HEADER & TIÊU ĐỀ */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-900">Công việc</h1>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-colors">
+        <h1 className="page-title mb-0">Công việc</h1>
+        <button className="btn-primary">
           <span>+</span> Công việc mới
         </button>
       </div>
 
       {/* KHỐI 2: TÌM KIẾM & BỘ LỌC */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Ô Tìm kiếm */}
         <div className="md:col-span-6 relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
           <input
-            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-400"
+            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-mango-500 focus:ring-1 focus:ring-mango-500 transition-all placeholder:text-slate-400"
             type="text"
             placeholder="Tìm theo tên công việc..."
             value={searchTerm}
@@ -189,7 +169,7 @@ function ListTask() {
                 onChange={(e)=> {
                     setSetlectedStatus(e.target.value)
                 }} 
-                className="md:col-span-3 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-indigo-500 transition-all">
+                className="md:col-span-3 select-field">
           <option value="">Tất cả trạng thái</option>
           <option value="Hoàn thành">Hoàn thành</option>
           <option value="Đang thực hiện">Đang thực hiện</option>
@@ -203,7 +183,7 @@ function ListTask() {
                     setSetlectedPriority(e.target.value)
                     
                 }} 
-                className="md:col-span-3 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-indigo-500 transition-all">
+                className="md:col-span-3 select-field">
           <option value="">Tất cả ưu tiên</option>
           <option value="Cao">Cao</option>
           <option value="Trung bình">Trung bình</option>
@@ -212,9 +192,9 @@ function ListTask() {
       </div>
 
       {/* KHỐI 3: DANH SÁCH TASK (BẢNG) */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div className="table-container">
         {/* Header Bảng */}
-        <div className="grid grid-cols-[1fr_140px_130px_120px_130px] items-center px-6 py-3.5 border-b border-slate-100 bg-slate-50/50 text-xs font-semibold text-slate-500">
+        <div className="table-header">
           <div>Công việc</div>
           <div className="text-center">Trạng thái</div>
           <div className="text-center">Ưu tiên</div>
@@ -223,18 +203,15 @@ function ListTask() {
         </div>
 
         {/* Danh sách dòng Task */}
-        <div className="divide-y divide-slate-100">
+        <div>
           {filteredTasks.length === 0 ? (
             <div className="py-12 text-center flex flex-col items-center justify-center">
-              
               <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                 <Search className="w-6 h-6" />
               </div>
               <p className="text-slate-600 font-semibold text-sm">
                 Không tìm thấy công việc nào phù hợp
               </p>
-
-              {/* Gợi ý phụ cho người dùng */}
               <p className="text-slate-400 text-xs mt-1">
                 Thử thay đổi từ khóa tìm kiếm hoặc bỏ chọn bộ lọc xem sao nhé!
               </p>
@@ -248,15 +225,12 @@ function ListTask() {
               return (
                 <button
                   onClick={() => setSelectedTask(task)}
-                  
                   key={task.id}
-                  className="w-full grid grid-cols-[1fr_140px_130px_120px_130px] items-center px-6 py-4 hover:bg-slate-50/80 transition-colors text-left group"
+                  className="table-row group"
                 >
                   {/* Tên Task & Subtask info */}
                   <div className="pr-4 min-w-0">
-                    <p className="font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors text-sm truncate">
-                      {task.title}
-                    </p>
+                    <p className="task-title truncate">{task.title}</p>
                     {parentTask && (
                       <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
                         <span>↳</span> Subtask của:{" "}
@@ -292,14 +266,14 @@ function ListTask() {
           )}
         </div>
       </div>
-       {selectedTask && (
+
+      {selectedTask && (
         <TaskDetail
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
         />
       )}
     </div>
-   
   );
 }
 

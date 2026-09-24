@@ -1,24 +1,19 @@
 import React, { useState } from "react";
 
-// Component Badge hiển thị nhãn trạng thái có Dot + Nền nhạt
+// Component Badge hiển thị nhãn trạng thái có Dot
 const StatusBadge = ({ statusType, text }) => {
   const styles = {
-    done: "bg-emerald-50 text-emerald-700 border-emerald-200/60",
-    "in-progress": "bg-indigo-50 text-indigo-700 border-indigo-200/60",
-    todo: "bg-slate-100 text-slate-600 border-slate-200/60",
-    overdue: "bg-rose-50 text-rose-700 border-rose-200/60",
+    done: { badge: "badge badge-done", dot: "dot-done" },
+    "in-progress": { badge: "badge badge-in-progress", dot: "dot-in-progress" },
+    todo: { badge: "badge badge-todo", dot: "dot-todo" },
+    overdue: { badge: "badge badge-overdue", dot: "dot-overdue" },
   };
 
-  const dotColors = {
-    done: "bg-emerald-500",
-    "in-progress": "bg-indigo-500",
-    todo: "bg-slate-400",
-    overdue: "bg-rose-500 animate-pulse",
-  };
+  const current = styles[statusType] || styles.todo;
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[statusType] || styles.todo}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${dotColors[statusType] || dotColors.todo}`}></span>
+    <span className={current.badge}>
+      <span className={current.dot}></span>
       {text}
     </span>
   );
@@ -127,7 +122,7 @@ function Dashboard() {
                   </div>
                 </div>
 
-                <div className="w-9 h-9 rounded-full bg-[#5A3200] text-[#FFC233] flex items-center justify-center font-bold text-xs ring-2 ring-[#C95A00]/20 shrink-0">
+                <div className="avatar-mango w-9 h-9 text-xs">
                   {task.avatar}
                 </div>
               </div>
@@ -143,12 +138,12 @@ function Dashboard() {
             <div className="relative w-48 h-48 flex items-center justify-center shrink-0">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                 <path className="text-rose-500" strokeWidth="3.8" strokeDasharray="37, 100" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path className="text-[#FFC233]" strokeWidth="3.8" strokeDasharray="33, 100" strokeDashoffset="-37" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path className="text-amber-500" strokeWidth="3.8" strokeDasharray="33, 100" strokeDashoffset="-37" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                 <path className="text-emerald-500" strokeWidth="3.8" strokeDasharray="30, 100" strokeDashoffset="-70" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
               </svg>
 
               <div className="absolute text-center">
-                <p className="text-3xl font-bold text-[#5A3200] leading-none">{totalTasks}</p>
+                <p className="text-3xl font-bold leading-none">{totalTasks}</p>
                 <p className="text-[11px] font-medium text-slate-400 mt-1">công việc</p>
               </div>
             </div>
@@ -159,21 +154,21 @@ function Dashboard() {
                   <span className="w-3 h-3 rounded-sm bg-rose-500"></span>
                   <span>Cao</span>
                 </div>
-                <span className="font-bold text-[#5A3200]">9</span>
+                <span className="font-bold">9</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2 font-semibold text-slate-700">
-                  <span className="w-3 h-3 rounded-sm bg-[#FFC233]"></span>
+                  <span className="w-3 h-3 rounded-sm bg-amber-500"></span>
                   <span>Trung bình</span>
                 </div>
-                <span className="font-bold text-[#5A3200]">8</span>
+                <span className="font-bold ">8</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2 font-semibold text-slate-700">
                   <span className="w-3 h-3 rounded-sm bg-emerald-500"></span>
                   <span>Thấp</span>
                 </div>
-                <span className="font-bold text-[#5A3200]">7</span>
+                <span className="font-bold">7</span>
               </div>
             </div>
           </div>
