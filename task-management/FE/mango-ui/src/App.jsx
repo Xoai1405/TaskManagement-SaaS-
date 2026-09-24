@@ -3,6 +3,8 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import ListTask from './components/ListTask';
 import Kanban from './components/Kanban';
+import Team from './components/Team';
+import Member from './components/Member';
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -16,8 +18,8 @@ export default function App() {
         {activeTab === 'dashboard' && <Dashboard></Dashboard>}
         {activeTab === 'tasks' && <ListTask></ListTask>}
         {activeTab === 'kanban' && <Kanban></Kanban>}
-        {activeTab === 'teams' && <div>Màn hình 4: Quản lý Team</div>}
-        {activeTab === 'members' && <div>Màn hình 5: Thành viên Workspace</div>}
+        {activeTab === 'teams' && <Team/>}
+        {activeTab === 'members' && <Member/>}
       </main>
     </div>
   );
