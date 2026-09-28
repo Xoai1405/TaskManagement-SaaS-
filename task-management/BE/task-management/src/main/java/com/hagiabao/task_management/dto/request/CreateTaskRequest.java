@@ -17,6 +17,8 @@ public record CreateTaskRequest(
     
     @NotNull(message = "Độ ưu tiên không được để trống") 
     Priority priority,
+
+    String description,
     
     LocalDateTime deadline,
     

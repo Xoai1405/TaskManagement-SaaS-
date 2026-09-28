@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hagiabao.task_management.dto.request.CreateSubtaskRequest;
 import com.hagiabao.task_management.dto.request.CreateTaskRequest;
 import com.hagiabao.task_management.dto.request.UpdateSubtaskStatusRequest;
 import com.hagiabao.task_management.dto.request.UpdateTaskRequest;
@@ -37,6 +38,8 @@ public class TaskController {
     public ResponseEntity<List<TaskResponse>> getAllTaskInTeam(@PathVariable Long teamId) {
         return ResponseEntity.status(HttpStatus.OK).body(taskSer.getAllTaskInTeam(teamId));
     }
+
+    
 
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
@@ -72,12 +75,25 @@ public class TaskController {
 
     // ================= SUBTASK ENDPOINTS =================
 
+
     @GetMapping("/{taskId}/subtasks")
     public ResponseEntity<List<SubtaskResponse>> getSubtasks(
             @PathVariable Long teamId,
             @PathVariable Long taskId) {
         return ResponseEntity.ok(taskSer.getSubtasks(teamId, taskId));
     }
+
+    @PostMapping("/{taskId}/users/{userId}/subtasks/")
+     public ResponseEntity<SubtaskResponse> createSubtasks(
+            @PathVariable Long teamId,
+            @PathVariable Long taskId,
+            @PathVariable Long userId,
+        @RequestBody CreateSubtaskRequest request    ) {
+
+            SubtaskResponse res = taskSer.createSubtask(request, teamId, taskId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+    
 
     @PatchMapping("/{taskId}/subtasks/{subtaskId}")
     public ResponseEntity<SubtaskResponse> updateSubtaskStatus(

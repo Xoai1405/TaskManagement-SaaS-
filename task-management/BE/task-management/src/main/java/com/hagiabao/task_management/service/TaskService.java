@@ -4,15 +4,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.hagiabao.task_management.dto.request.CreateSubtaskRequest;
 import com.hagiabao.task_management.dto.request.CreateTaskRequest;
 import com.hagiabao.task_management.dto.request.UpdateSubtaskStatusRequest;
 import com.hagiabao.task_management.dto.request.UpdateTaskRequest;
 import com.hagiabao.task_management.dto.request.UpdateTaskStageRequest;
 import com.hagiabao.task_management.dto.response.SubtaskResponse;
 import com.hagiabao.task_management.dto.response.TaskResponse;
+import com.hagiabao.task_management.entity.Role;
 import com.hagiabao.task_management.entity.Stage;
 import com.hagiabao.task_management.entity.Task;
 import com.hagiabao.task_management.entity.TaskAssignment;
@@ -20,9 +23,12 @@ import com.hagiabao.task_management.entity.Team;
 import com.hagiabao.task_management.entity.User;
 import com.hagiabao.task_management.repository.TaskAssignmentRepository;
 import com.hagiabao.task_management.repository.TaskRepository;
+import com.hagiabao.task_management.repository.TeamMemberRepository;
 import com.hagiabao.task_management.repository.TeamRepository;
 import com.hagiabao.task_management.repository.UserRepository;
+import com.hagiabao.task_management.repository.WorkspaceMemberRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service 
@@ -30,8 +36,10 @@ import lombok.RequiredArgsConstructor;
 public class TaskService {
     private final TaskRepository taskRepo;
     private final TeamRepository teamRepo;
+    private final TeamMemberRepository teamMemberRepo;
     private final UserRepository userRepo;
     private final TaskAssignmentRepository taskAssignmentRepo;
+    private final WorkspaceMemberRepository wspMemberRepo;
 
     public List<TaskResponse>getAllTaskInTeam(Long teamId){
         teamRepo.findById(teamId).orElseThrow(()->new RuntimeException("Team không tồn tại!"));
@@ -42,6 +50,7 @@ public class TaskService {
         for(Task x: taskList) {
             res.add(new TaskResponse(x.getId(),
             x.getTitle(),
+            x.getDescription(),
             x.getStage(),
             x.getCreatedAt(),
             x.getDeadline(),
@@ -99,6 +108,7 @@ public TaskResponse createTask(Long teamId, CreateTaskRequest request) {
     return new TaskResponse(
         savedTask.getId(),
         savedTask.getTitle(),
+        savedTask.getDescription(),
         savedTask.getStage(),
         savedTask.getCreatedAt(),
         savedTask.getDeadline(),
@@ -151,6 +161,7 @@ public TaskResponse updateTaskInfo(Long teamId, Long taskId, UpdateTaskRequest r
     return new TaskResponse(
         updatedTask.getId(),
         updatedTask.getTitle(),
+        updatedTask.getDescription(),
         updatedTask.getStage(),
         updatedTask.getCreatedAt(),
         updatedTask.getDeadline(),
@@ -173,6 +184,7 @@ public TaskResponse updateTaskInfo(Long teamId, Long taskId, UpdateTaskRequest r
         return new TaskResponse(
             updatedTask.getId(),
             updatedTask.getTitle(),
+            updatedTask.getDescription(),
             updatedTask.getStage(),
             updatedTask.getCreatedAt(),
             updatedTask.getDeadline(),
@@ -205,9 +217,51 @@ public TaskResponse updateTaskInfo(Long teamId, Long taskId, UpdateTaskRequest r
                 .map(sub -> new SubtaskResponse(
                         sub.getId(),
                         sub.getTitle(),
+                        sub.getDescription(),
                         sub.getStage() == Stage.COMPLETED
                 ))
                 .toList();
+    }
+
+    //Tạo subtask cho 1 task
+    public boolean checkUserPermission(Long worspaceId, Long currentUserId, Long teamId, Long taskId)
+    {
+        boolean isWorkspaceAdmin=wspMemberRepo.existsByWorkspaceIdAndUserIdAndRole(worspaceId, currentUserId, Role.ADMIN);
+        if (isWorkspaceAdmin) return true;
+
+        boolean isTeamLeader =teamMemberRepo
+        .existsByTeamIdAndUserIdAndRole(teamId, currentUserId, Role.LEADER);
+        if (isTeamLeader) return true;
+        
+         return taskAssignmentRepo.existsByTaskIdAndUserId(taskId, currentUserId);
+    }
+
+    @Transactional 
+    public SubtaskResponse createSubtask(CreateSubtaskRequest request,Long teamId, Long taskId, Long currentUserId){
+            Task parentTask = taskRepo.findByIdAndTeamIdAndDeletedAtIsNull(taskId, teamId)
+        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy task cha"));
+
+        Team team = teamRepo.findById(teamId).orElseThrow(()->new EntityNotFoundException("Team không tồn tai!"));
+        boolean hasPermission = checkUserPermission(team.getWorkspace().getId(), currentUserId, teamId, taskId);
+        if (!hasPermission) throw new AccessDeniedException("Bạn không có quyền tạo subtask");
+       User currentUser = userRepo.findById(currentUserId).orElseThrow(()-> new RuntimeException("User không tồn tại!"));
+        Task subtask = new Task();
+        subtask.setTitle(request.title());
+        subtask.setParentTask(parentTask);
+        subtask.setTeam(parentTask.getTeam());
+        subtask.setWorkspace(parentTask.getWorkspace());
+        subtask.setStage(Stage.TODO);
+        subtask.setCreatedBy(currentUser);
+
+        Task savedSubtask = taskRepo.save(subtask);
+
+        return new SubtaskResponse(
+        savedSubtask.getId(),
+        savedSubtask.getTitle(),
+        savedSubtask.getDescription(),
+        savedSubtask.getStage() == Stage.COMPLETED
+        
+            );
     }
 
     // Cập nhật trạng thái hoàn thành Subtask (Tick/Untick)
@@ -226,6 +280,7 @@ public TaskResponse updateTaskInfo(Long teamId, Long taskId, UpdateTaskRequest r
         return new SubtaskResponse(
                 savedSubtask.getId(),
                 savedSubtask.getTitle(),
+                savedSubtask.getDescription(),
                 savedSubtask.getStage() == Stage.COMPLETED
         );
     }

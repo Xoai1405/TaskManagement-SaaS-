@@ -1,97 +1,75 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import TaskDetail from "./TaskDetail";
-
+import { taskApi } from "../api/taskApi";
+import TaskAssignees from "./TaskAssignee";
+import CreateTask from "./CreateTask";
 function ListTask() {
-  const listTask = [
-    {
-      id: 1,
-      title: "Thiết kế API đăng nhập JWT",
-      description: "Mô tả task 1",
-      status: "Hoàn thành",
-      priority: "Cao",
-      assignee: ["HB"],
-      deadline: "12/09/2026",
-      id_taskParent: null,
-    },
-    {
-      id: 2,
-      title: "Xây dựng module Workspace & Team",
-      description: "Mô tả task 2",
-      status: "Đang thực hiện",
-      priority: "Trung bình",
-      assignee: ["QH"],
-      deadline: "20/09/2026",
-      id_taskParent: null,
-    },
-    {
-      id: 3,
-      title: "Viết unit test cho TaskService",
-      description: "Mô tả task 3",
-      status: "Đang thực hiện",
-      priority: "Cao",
-      assignee: ["HB", "QH"],
-      deadline: "28/09/2026",
-      id_taskParent: null,
-    },
-    {
-      id: 4,
-      title: "Thiết kế ERD cho Notification",
-      description: "Mô tả task 4",
-      status: "Cần làm",
-      priority: "Thấp",
-      assignee: ["MA"],
-      deadline: "02/10/2026",
-      id_taskParent: null,
-    },
-    {
-      id: 5,
-      title: "Xây dựng module Subtask",
-      description: "Mô tả task 5",
-      status: "Cần làm",
-      priority: "Trung bình",
-      assignee: ["ĐA"],
-      deadline: "05/10/2026",
-      id_taskParent: 2,
-    },
-    {
-      id: 6,
-      title: "Tích hợp WebSocket realtime",
-      description: "Mô tả task 6",
-      status: "Cần làm",
-      priority: "Cao",
-      assignee: ["QH"],
-      deadline: "12/10/2026",
-      id_taskParent: null,
-    },
-    {
-      id: 7,
-      title: "Viết Swagger cho toàn bộ API",
-      description: "Mô tả task 7",
-      status: "Cần làm",
-      priority: "Thấp",
-      assignee: ["TT"],
-      deadline: "15/10/2026",
-      id_taskParent: null,
-    },
-  ];
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [searchTerm, setSerchTerm] = useState("");
   const [selectedStatus, setSetlectedStatus] = useState("");
   const [selectedPriority, setSetlectedPriority] = useState("");
 
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const currentUser = { id: 101, name: "Quốc Huy" };
+  useEffect(() => {
+    const fetchTaskList = async () => {
+      try {
+        setLoading(true);
+        const data = await taskApi.getAllTaskInTeam();
+        setTasks(data);
+      } catch (err) {
+        setError(err.message || "Đã xảy ra lỗi không xác định!");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTaskList();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 text-center text-slate-500">
+        Đang tải danh sách công việc...
+      </div>
+    );
+  }
+
+  // Hiển thị khi có lỗi
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        Lỗi: {error}. Vui lòng kiểm tra lại kết nối Backend Spring Boot!
+      </div>
+    );
+  }
+  const listTask = tasks;
+
   const filteredTasks = listTask.filter((task) => {
     return (
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (selectedStatus === "" || task.status === selectedStatus) &&
-      (selectedPriority === "" || task.priority === selectedPriority)
+      (selectedStatus === "" || task.stage === selectedStatus) &&
+      (selectedPriority === "" || task.priorityLevel === selectedPriority)
     );
   });
 
-  const [selectedTask, setSelectedTask] = useState(null);
-
   // Helper render Badge Trạng thái bằng Class Design System
+  
   const renderStatusBadge = (status) => {
+    const changeStatusAlias = {
+      COMPLETED: "Hoàn thành",
+      IN_PROGRESS: "Đang thực hiện",
+
+      TODO: "Cần làm",
+      OVERDUE: "Quá hạn"
+    }
+
     const mapClass = {
       "Hoàn thành": "badge badge-done",
       "Đang thực hiện": "badge badge-in-progress",
@@ -99,24 +77,31 @@ function ListTask() {
       "Quá hạn": "badge badge-overdue",
     };
     return (
-      <span className={mapClass[status] || "badge badge-todo"}>
-        {status}
-      </span>
+      <span className={mapClass[changeStatusAlias[status]] || "badge badge-todo"}>{changeStatusAlias[status]}</span>
     );
   };
 
   // Helper render Badge Ưu tiên bằng Class Design System
   const renderPriorityBadge = (priority) => {
+    const changePriorityAlias = {
+      HIGH: "Cao",
+      MEDIUM: "Trung bình",
+      LOW: "Thấp"
+    }
+
     const mapStyle = {
-      Cao: { badge: "badge-priority-high", dot: "dot-priority-high" },
-      "Trung bình": { badge: "badge-priority-medium", dot: "dot-priority-medium" },
-      Thấp: { badge: "badge-priority-low", dot: "dot-priority-low" },
+      "Cao": { badge: "badge-priority-high", dot: "dot-priority-high" },
+      "Trung bình": {
+        badge: "badge-priority-medium",
+        dot: "dot-priority-medium",
+      },
+      "Thấp": { badge: "badge-priority-low", dot: "dot-priority-low" },
     };
-    const current = mapStyle[priority] || mapStyle["Thấp"];
+    const current = mapStyle[changePriorityAlias[priority]] || mapStyle["Thấp"];
     return (
       <span className={current.badge}>
         <span className={current.dot}></span>
-        {priority}
+        {changePriorityAlias[priority]}
       </span>
     );
   };
@@ -143,13 +128,13 @@ function ListTask() {
       {/* KHỐI 1: HEADER & TIÊU ĐỀ */}
       <div className="flex justify-between items-center">
         <h1 className="page-title mb-0">Công việc</h1>
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={() => setIsCreateModalOpen(true)}>
           <span>+</span> Công việc mới
         </button>
       </div>
 
       {/* KHỐI 2: TÌM KIẾM & BỘ LỌC */}
-       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Ô Tìm kiếm */}
         <div className="md:col-span-6 relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -165,29 +150,32 @@ function ListTask() {
         </div>
 
         {/* Combobox Trạng thái */}
-        <select value={selectedStatus}
-                onChange={(e)=> {
-                    setSetlectedStatus(e.target.value)
-                }} 
-                className="md:col-span-3 select-field">
+        <select
+          value={selectedStatus}
+          onChange={(e) => {
+            setSetlectedStatus(e.target.value);
+          }}
+          className="md:col-span-3 select-field"
+        >
           <option value="">Tất cả trạng thái</option>
-          <option value="Hoàn thành">Hoàn thành</option>
-          <option value="Đang thực hiện">Đang thực hiện</option>
-          <option value="Cần làm">Cần làm</option>
-          <option value="Quá hạn">Quá hạn</option>
+          <option value="COMPLETED">Hoàn thành</option>
+          <option value="IN_PROGRESS">Đang thực hiện</option>
+          <option value="TODO">Cần làm</option>
+          <option value="OVERDUE">Quá hạn</option>
         </select>
 
         {/* Combobox Ưu tiên */}
-        <select value={selectedPriority}
-                onChange={(e)=> {
-                    setSetlectedPriority(e.target.value)
-                    
-                }} 
-                className="md:col-span-3 select-field">
+        <select
+          value={selectedPriority}
+          onChange={(e) => {
+            setSetlectedPriority(e.target.value);
+          }}
+          className="md:col-span-3 select-field"
+        >
           <option value="">Tất cả ưu tiên</option>
-          <option value="Cao">Cao</option>
-          <option value="Trung bình">Trung bình</option>
-          <option value="Thấp">Thấp</option>
+          <option value="HIGH">Cao</option>
+          <option value="MEDIUM">Trung bình</option>
+          <option value="LOW">Thấp</option>
         </select>
       </div>
 
@@ -218,14 +206,14 @@ function ListTask() {
             </div>
           ) : (
             filteredTasks.map((task) => {
-              const parentTask = task.id_taskParent
-                ? listTask.find((t) => t.id === task.id_taskParent)
+              const parentTask = task.parentTaskId
+                ? listTask.find((t) => t.id === task.parentTaskId)
                 : null;
 
               return (
                 <button
                   onClick={() => setSelectedTask(task)}
-                  key={task.id}
+                  key={task.taskId}
                   className="table-row group"
                 >
                   {/* Tên Task & Subtask info */}
@@ -243,18 +231,16 @@ function ListTask() {
 
                   {/* Trạng thái */}
                   <div className="text-center">
-                    {renderStatusBadge(task.status)}
+                    {renderStatusBadge(task.stage)}
                   </div>
 
                   {/* Ưu tiên */}
                   <div className="text-center">
-                    {renderPriorityBadge(task.priority)}
+                    {renderPriorityBadge(task.priorityLevel)}
                   </div>
 
                   {/* Phụ trách */}
-                  <div className="text-center">
-                    {renderAssignees(task.assignee)}
-                  </div>
+                  <TaskAssignees taskId={task.taskId} />
 
                   {/* Hạn chót */}
                   <div className="text-center text-xs font-medium text-slate-500">
@@ -268,9 +254,17 @@ function ListTask() {
       </div>
 
       {selectedTask && (
-        <TaskDetail
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
+        <TaskDetail task={selectedTask} onClose={() => setSelectedTask(null)} />
+      )}
+
+      {isCreateModalOpen && (
+        <CreateTask
+          currentUser={currentUser}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={() => {
+            setIsCreateModalOpen(false);
+            
+          }}
         />
       )}
     </div>

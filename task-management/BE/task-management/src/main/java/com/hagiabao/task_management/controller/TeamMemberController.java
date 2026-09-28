@@ -2,6 +2,8 @@ package com.hagiabao.task_management.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hagiabao.task_management.dto.request.AddUserToTeamRequest;
 import com.hagiabao.task_management.dto.request.ChangeRoleMemberRequest;
 import com.hagiabao.task_management.dto.response.TeamMemberResponse;
+import com.hagiabao.task_management.dto.response.UserInTeamResponse;
 import com.hagiabao.task_management.dto.response.UserResponse;
 import com.hagiabao.task_management.service.TeamMemberService;
 
@@ -20,12 +23,18 @@ import lombok.RequiredArgsConstructor;
 
 
 
+
 @RestController 
 @RequestMapping ("/api/v1/workspaces/{workspaceId}/teams/{teamId}/members")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class TeamMemberController {
     private final TeamMemberService teamMemberSer; 
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserInTeamResponse> getInfoUserInTeam(@PathVariable Long teamId, @PathVariable Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body( teamMemberSer.getInfoUserInTeam(userId, teamId) );
+    }
 
     @PostMapping()
     public ResponseEntity<UserResponse> AddUserToTeam(@RequestBody @Valid AddUserToTeamRequest request, @PathVariable Long workspaceId,@PathVariable  Long teamId) {
@@ -38,6 +47,7 @@ public class TeamMemberController {
     {
         return ResponseEntity.status(HttpStatus.OK).body(teamMemberSer.ChangeRoleMember(request, teamId, workspaceId, userId));
     }
+    
     
     
 

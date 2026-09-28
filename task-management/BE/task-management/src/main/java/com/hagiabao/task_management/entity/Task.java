@@ -50,8 +50,11 @@ public class Task {
    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column( nullable = false, updatable = false)
+    @Column
     private LocalDateTime deadline;
+
+    @Column
+    private String description;
 
     @Column (nullable=false,name="priority_level")
     @Enumerated(EnumType.STRING)

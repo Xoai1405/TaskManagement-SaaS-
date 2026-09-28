@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.hagiabao.task_management.dto.request.AddUserToTeamRequest;
 import com.hagiabao.task_management.dto.request.ChangeRoleMemberRequest;
 import com.hagiabao.task_management.dto.response.TeamMemberResponse;
+import com.hagiabao.task_management.dto.response.UserInTeamResponse;
 import com.hagiabao.task_management.dto.response.UserResponse;
 import com.hagiabao.task_management.entity.Team;
 import com.hagiabao.task_management.entity.TeamMember;
@@ -25,6 +26,13 @@ public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepo;
     private final WorkspaceRepository workspaceRepo;
 
+    @Transactional
+    public UserInTeamResponse getInfoUserInTeam(Long userId, Long teamId){
+        userRepo.findById(userId).orElseThrow(()->new RuntimeException("User không tồn tại!"));
+        TeamMember teamMber =  teamMemberRepo.findByUserIdAndTeamId(userId, teamId).orElseThrow(()-> new RuntimeException("Member này không tồn tại trong team!"));
+
+        return new UserInTeamResponse(teamMber.getUser().getId(), teamMber.getUser().getFullName(), teamMber.getUser().getEmail(), teamMber.getRole());
+    }
     @Transactional
     public UserResponse AddUserToTeam(AddUserToTeamRequest request, Long workspaceId, Long teamId){
          workspaceRepo.findById(workspaceId).orElseThrow(()->new RuntimeException("Workspace không tồn tại!"));

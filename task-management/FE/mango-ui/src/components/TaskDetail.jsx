@@ -12,6 +12,7 @@ import {
   Clock,
   Send,
 } from "lucide-react";
+import TaskAssignees from "./TaskAssignee";
 
 function TaskDetail({ task, onClose }) {
   if (!task) return null;
@@ -132,13 +133,13 @@ function TaskDetail({ task, onClose }) {
                 <Tag className="w-3.5 h-3.5" /> Trạng thái
               </label>
               <select
-                defaultValue={task.status}
+                defaultValue={task.stage}
                 className="select-field w-full text-slate-700"
               >
-                <option value="Cần làm">Cần làm</option>
-                <option value="Đang thực hiện">Đang thực hiện</option>
-                <option value="Hoàn thành">Hoàn thành</option>
-                <option value="Quá hạn">Quá hạn</option>
+                <option value="TODO">Cần làm</option>
+                <option value="IN_PROGRESS">Đang thực hiện</option>
+                <option value="COMPLETED">Hoàn thành</option>
+                <option value="OVERDUE">Quá hạn</option>
               </select>
             </div>
 
@@ -148,12 +149,12 @@ function TaskDetail({ task, onClose }) {
                 <Clock className="w-3.5 h-3.5" /> Mức độ ưu tiên
               </label>
               <select
-                defaultValue={task.priority}
+                defaultValue={task.priorityLevel}
                 className="select-field w-full text-slate-700"
               >
-                <option value="Cao">Cao</option>
-                <option value="Trung bình">Trung bình</option>
-                <option value="Thấp">Thấp</option>
+                <option value="HIGH">Cao</option>
+                <option value="MEDIUM">Trung bình</option>
+                <option value="LOW">Thấp</option>
               </select>
             </div>
 
@@ -173,17 +174,7 @@ function TaskDetail({ task, onClose }) {
                 <Users className="w-3.5 h-3.5" /> Người phụ trách
               </label>
               <div className="bg-white border border-slate-200 rounded-xl p-2.5 flex items-center gap-2">
-                {Array.isArray(task.assignee) ? (
-                  task.assignee.map((name, idx) => (
-                    <span key={idx} className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-lg">
-                      {name}
-                    </span>
-                  ))
-                ) : (
-                  <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-lg">
-                    {task.assignee}
-                  </span>
-                )}
+                <TaskAssignees taskId={task.taskId} />
               </div>
             </div>
 

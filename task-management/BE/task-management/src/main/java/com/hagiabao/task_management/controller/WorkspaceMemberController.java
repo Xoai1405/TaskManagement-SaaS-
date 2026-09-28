@@ -2,6 +2,7 @@ package com.hagiabao.task_management.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping ("/api/v1/workspaces")
 @RequiredArgsConstructor 
+@CrossOrigin(origins = "*")
 public class WorkspaceMemberController {
     private final UserRepository userRepository;
 private final WorkspaceMemberService workspaceMemberService;
