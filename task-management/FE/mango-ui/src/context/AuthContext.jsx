@@ -1,27 +1,8 @@
 import { createContext, useContext, useState } from "react";
+import { authApi } from "../api/authApi";
 
 const AuthContext = createContext(null);
 
-const fakeLogin = (email, password) =>
-  new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (password === "123456") {
-        resolve({ email });
-      } else {
-        reject(new Error("Email hoặc mật khẩu không đúng"));
-      }
-    }, 1000);
-  });
-const fakeRegister = (email, fullName, password) =>
-  new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (email === "da@gmail.com") {
-        reject(new Error("Email đã tồn tại"));
-      } else {
-        resolve({ email, fullName });
-      }
-    }, 1000);
-  });
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
@@ -29,16 +10,21 @@ export function AuthProvider({ children }) {
   });
 
   const login = async (email, password) => {
-    const loggedInUser = await fakeLogin(email, password);
+    const data = await authApi.login(email, password);
+
+    const loggedInUser = { id: data.id, fullName: data.fullName, email: data.email };
+
+    localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(loggedInUser));
     setUser(loggedInUser);
   };
 
-  const register = async (email, fullName, password) => {
-    await fakeRegister(email, fullName, password);
+  const register = async (fullName,email, password) => {
+    await authApi.register(fullName, email, password);
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
   };

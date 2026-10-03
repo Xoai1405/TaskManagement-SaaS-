@@ -1,8 +1,9 @@
-import { Eye, EyeOff } from "lucide-react";
 import { useRef, useState } from "react";
-
+import { Eye, EyeOff, User, Lock, ArrowRight, Mail } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import loginBg from "../assets/loginBackgroundImage.png";
+
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -11,7 +12,6 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
-  // const [UiError,SetUiError] = useState({});
 
   const fullNameRef = useRef(null);
   const emailRef = useRef(null);
@@ -19,60 +19,37 @@ export default function RegisterPage() {
   const repeatPasswordRef = useRef(null);
   const [showPassword, setShowPassword] = useState([false, false]);
 
-    const { register } = useAuth();
-    const navigate = useNavigate();
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
   const handleFullnameChange = (e) => {
     setFullName(e.target.value);
-
     if (errors.fullName) {
       setErrors((prev) => ({ ...prev, fullName: "" }));
     }
-    //  if(UiError.fullName) SetUiError((prev)=>({...prev,fullName:""}));
   };
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-
     if (errors.email) {
       setErrors((prev) => ({ ...prev, email: "" }));
     }
     if (serverError) setServerError("");
   };
+
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-
     if (errors.password) {
       setErrors((prev) => ({ ...prev, password: "" }));
     }
   };
+
   const handleRepeatPasswordChange = (e) => {
     setRepeatPassword(e.target.value);
-
     if (errors.repeatPassword) {
       setErrors((prev) => ({ ...prev, repeatPassword: "" }));
     }
   };
-
-  // const handleEmailOnClick=()=> {
-  //     const temp = {};
-  //     if(fullName==="") temp.fullName="Họ tên không được để trống"
-  //     SetUiError(temp);
-  //     setErrors(temp);
-  // }
-  // const handlePasswordOnClick = ()=>{
-  //     const temp = {};
-  //     if(fullName==="") temp.fullName="Họ tên không được để trống"
-  //     if(email==="") temp.email="Email không được để trống"
-  //     SetUiError(temp);
-  //     setErrors(temp);
-  // }
-  // const handleRepeatPasswordOnClick = ()=>{
-  //     const temp = {};
-  //     if(fullName==="") temp.fullName="Họ tên không được để trống"
-  //     if(email==="") temp.email="Email không được để trống"
-  //     if(password==="") temp.password="Mật khẩu không được để trống"
-  //     SetUiError(temp);
-  //     setErrors(temp);
-  // }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,16 +61,21 @@ export default function RegisterPage() {
 
     if (email === "") {
       newError.email = "Vui lòng nhập email";
-    } else if (!email.includes("@")) newError.email = "Email không hợp lệ!";
+    } else if (!email.includes("@")) {
+      newError.email = "Email không hợp lệ!";
+    }
+
     if (password === "") {
       newError.password = "Vui lòng nhập mật khẩu";
-    } else if (password.length < 6)
+    } else if (password.length < 6) {
       newError.password = "Mật khẩu tối thiểu phải chứa 6 kí tự";
+    }
 
     if (repeatPassword === "") {
       newError.repeatPassword = "Vui lòng nhập lại mật khẩu";
-    } else if (repeatPassword !== password)
+    } else if (repeatPassword !== password) {
       newError.repeatPassword = "Mật khẩu không trùng khớp";
+    }
 
     setErrors(newError);
 
@@ -114,8 +96,8 @@ export default function RegisterPage() {
     setLoading(true);
     setServerError("");
     try {
-      await register(email, fullName, password);
-  navigate("/login");
+      await register(fullName, email, password);
+      navigate("/login");
     } catch (err) {
       setServerError(err.message);
       emailRef.current.focus();
@@ -123,153 +105,201 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FFF7E8]">
-      <form
-        noValidate
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow w-full max-w-sm"
-      >
-        <h1 className="text-2xl font-bold mb-6">Đăng kí</h1>
+    <div
+      className="auth-theme h-screen w-screen overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6 bg-[length:100%_100%] bg-center bg-no-repeat bg-[#FFF7E8]"
+      style={{ backgroundImage: `url(${loginBg})` }}
+    >
+      <div className="text-center mb-5">
+        <div className="inline-flex items-center justify-center gap-2.5 mb-1">
+          <span className="text-4xl select-none">🥭</span>
+          <span className="text-3xl font-black text-slate-900 tracking-tight title-icon-color">
+            Mango
+          </span>
+        </div>
+        <p className="text-sm font-medium text-slate-600">
+          Gọn gàng công việc, rõ ràng tương lai
+        </p>
+      </div>
+
+      <div className="bg-white/95 backdrop-blur-sm p-7 sm:p-9 rounded-3xl shadow-xl shadow-amber-900/5 w-full max-w-[460px] border border-amber-100/80">
+        <div className="flex border-b border-slate-100 mb-6">
+          <Link
+            to="/login"
+            className="pb-2.5 px-4 text-base font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            Đăng nhập
+          </Link>
+          <button
+            type="button"
+            className="pb-2.5 px-4 text-base font-bold text-orange-600 border-b-2 border-orange-600"
+          >
+            Đăng ký
+          </button>
+        </div>
+
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight title-icon-color">
+            Tạo tài khoản mới
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Bắt đầu quản lý công việc cùng Mango ngay hôm nay.
+          </p>
+        </div>
 
         {serverError && (
           <div
             role="alert"
-            className="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3"
+            className="mb-5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm px-4 py-3"
           >
             {serverError}
           </div>
         )}
 
-        <div className="mb-4">
-          <label htmlFor="fullName" className="block mb-1">
-            Họ tên{" "}
-            {/*  {UiError.fullName && <span className="text-red-500">*</span>} */}
-          </label>
-          <input
-            ref={fullNameRef}
-            value={fullName}
-            onChange={handleFullnameChange}
-            id="fullName"
-            type="text"
-            placeholder="Nguyễn Văn A"
-            className={`w-full border rounded-lg px-3 py-2 ${
-              errors.fullName ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.fullName && (
-            <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
-          )}
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="email" className="block mb-1">
-            Email{" "}
-            {/*  {UiError.email && <span className="text-red-500">*</span>} */}
-          </label>
-          <input
-            // onClick={handleEmailOnClick}
-            ref={emailRef}
-            value={email}
-            onChange={handleEmailChange}
-            id="email"
-            type="email"
-            placeholder="ban@example.com"
-            className={`w-full border rounded-lg px-3 py-2 ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-          )}
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="password" className="block mb-1">
-            Mật khẩu{" "}
-            {/*  {UiError.password&& <span className="text-red-500">*</span>} */}
-          </label>
-          <div className="relative">
-            <input
-              //   onClick={handlePasswordOnClick}
-              ref={passwordRef}
-              value={password}
-              onChange={handlePasswordChange}
-              id="password"
-              type={showPassword[0] ? "text" : "password"}
-              placeholder="Nhập mật khẩu"
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() =>
-                setShowPassword([!showPassword[0], showPassword[1]])
-              }
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-            >
-              {showPassword[0] ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <div>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 title-icon-color">
+                <User size={20} />
+              </span>
+              <input
+                ref={fullNameRef}
+                id="fullName"
+                type="text"
+                placeholder="Họ và tên"
+                value={fullName}
+                onChange={handleFullnameChange}
+                className={`w-full bg-white border rounded-xl pl-11 pr-4 py-3 text-sm sm:text-base outline-none transition-all placeholder:text-slate-400 ${
+                  errors.fullName
+                    ? "border-rose-500 focus:ring-1 focus:ring-rose-500"
+                    : "border-slate-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                }`}
+              />
+            </div>
+            {errors.fullName && (
+              <p className="mt-1.5 text-xs text-rose-600 font-medium pl-1">
+                {errors.fullName}
+              </p>
+            )}
           </div>
 
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-          )}
-        </div>
-
-        <div className="mb-6">
-          <label htmlFor="repeatPassword" className="block mb-1">
-            Nhập lại mật khẩu
-          </label>
-
-          <div className="relative">
-            <input
-              //   onClick={handleRepeatPasswordOnClick}
-              ref={repeatPasswordRef}
-              value={repeatPassword}
-              onChange={handleRepeatPasswordChange}
-              id="repeatPassword"
-              type={showPassword[1] ? "text" : "password"}
-              placeholder="Nhập lại mật khẩu"
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.repeatPassword ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() =>
-                setShowPassword([showPassword[0], !showPassword[1]])
-              }
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-            >
-              {showPassword[1] ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+          <div>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 title-icon-color">
+                <Mail size={20} />
+              </span>
+              <input
+                ref={emailRef}
+                id="email"
+                type="email"
+                placeholder="Địa chỉ Email"
+                value={email}
+                onChange={handleEmailChange}
+                className={`w-full bg-white border rounded-xl pl-11 pr-4 py-3 text-sm sm:text-base outline-none transition-all placeholder:text-slate-400 ${
+                  errors.email
+                    ? "border-rose-500 focus:ring-1 focus:ring-rose-500"
+                    : "border-slate-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                }`}
+              />
+            </div>
+            {errors.email && (
+              <p className="mt-1.5 text-xs text-rose-600 font-medium pl-1">
+                {errors.email}
+              </p>
+            )}
           </div>
 
-          {errors.repeatPassword && (
-            <p className="mt-1 text-sm text-red-600">{errors.repeatPassword}</p>
-          )}
-        </div>
+          <div>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 title-icon-color">
+                <Lock size={20} />
+              </span>
+              <input
+                ref={passwordRef}
+                id="password"
+                type={showPassword[0] ? "text" : "password"}
+                placeholder="Mật khẩu"
+                value={password}
+                onChange={handlePasswordChange}
+                className={`w-full bg-white border rounded-xl pl-11 pr-11 py-3 text-sm sm:text-base outline-none transition-all placeholder:text-slate-400 ${
+                  errors.password
+                    ? "border-rose-500 focus:ring-1 focus:ring-rose-500"
+                    : "border-slate-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword([!showPassword[0], showPassword[1]])
+                }
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 title-icon-color"
+              >
+                {showPassword[0] ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="mt-1.5 text-xs text-rose-600 font-medium pl-1">
+                {errors.password}
+              </p>
+            )}
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-orange-600 text-white font-bold py-2 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {loading ? "Đang đăng kí..." : "Đăng kí"}
-        </button>
+          <div>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 title-icon-color">
+                <Lock size={20} />
+              </span>
+              <input
+                ref={repeatPasswordRef}
+                id="repeatPassword"
+                type={showPassword[1] ? "text" : "password"}
+                placeholder="Nhập lại mật khẩu"
+                value={repeatPassword}
+                onChange={handleRepeatPasswordChange}
+                className={`w-full bg-white border rounded-xl pl-11 pr-11 py-3 text-sm sm:text-base outline-none transition-all placeholder:text-slate-400 ${
+                  errors.repeatPassword
+                    ? "border-rose-500 focus:ring-1 focus:ring-rose-500"
+                    : "border-slate-200 focus:border-oragne-500 focus:ring-1 focus:ring-orange-500"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword([showPassword[0], !showPassword[1]])
+                }
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 title-icon-color"
+              >
+                {showPassword[1] ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.repeatPassword && (
+              <p className="mt-1.5 text-xs text-rose-600 font-medium pl-1">
+                {errors.repeatPassword}
+              </p>
+            )}
+          </div>
 
-        <p className="mt-4 text-sm text-center text-gray-600">
-          Đã có tài khoản?{" "}
-          <Link
-            to="/login"
-            className="text-orange-600 font-bold hover:underline"
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-md shadow-mango-600/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base cursor-pointer mt-2"
           >
-            Đăng nhập
-          </Link>
-        </p>
-      </form>
+            <span>{loading ? "Đang đăng ký..." : "Đăng ký"}</span>
+            {!loading && <ArrowRight size={20} />}
+          </button>
+
+          <p className="pt-2 text-xs sm:text-sm text-center text-slate-500">
+            Đã có tài khoản?{" "}
+            <Link
+              to="/login"
+              className="text-orange-600 font-bold hover:underline"
+            >
+              Đăng nhập
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
